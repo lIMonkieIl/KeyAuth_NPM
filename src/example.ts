@@ -1,25 +1,14 @@
-import KeyAuth, { KeyAuthDetails, KeyAuthOptions } from './index';
-
-const keyAuthDetails: KeyAuthDetails = {
-  name: '',
-  ownerId: '',
-  secret: '',
-  version: '',
+// import KeyAuth, { KeyAuthDetails, KeyAuthOptions } from './index';
+import KeyAuth, { Api, Seller } from './index';
+const sellerDetails: Seller.Details = {
+  sellerKey: '',
 };
-
-const keyAuthOptions: KeyAuthOptions = {
-  apiVer: '1.2',
+const sellerOptions: Seller.Options = {
   logs: true,
-  useEncKey: true,
 };
-
-const keyAuthApp = new KeyAuth(keyAuthDetails, keyAuthOptions);
+const keyAuthSeller = new KeyAuth.Seller(sellerDetails, sellerOptions);
 export default async function main() {
-  const { success, message } = await keyAuthApp.initialize();
-  if (!success) {
-    console.log(message);
-    process.exit(0);
-  }
-  console.log(message);
+  const initSeller = await keyAuthSeller.initialize();
+  KeyAuth.log.info(initSeller, 'Seller');
 }
 main();

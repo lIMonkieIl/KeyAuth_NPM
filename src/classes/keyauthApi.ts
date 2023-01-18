@@ -1,13 +1,11 @@
-import { KeyAuthDetails, KeyAuthOptions } from './types';
+import { Api } from '../types/index.ts';
 import { v4 as uuidv4 } from 'uuid';
-import { createHash, createCipheriv, createDecipheriv } from 'crypto';
-import { execSync } from 'child_process';
+import { createHash } from 'crypto';
 import axios from 'axios';
-import os from 'os';
 import { isNotEmpty, length, isNumberString } from 'class-validator';
-import { logger } from './logger';
-export default class KeyAuth {
-  public constructor(details: KeyAuthDetails, options?: KeyAuthOptions) {
+import { logger } from '../utils/logger';
+export default class KeyAuthApi {
+  public constructor(details: Api.Details, options?: Api.Options) {
     this._options = options
       ? options
       : { apiVer: '1.2', logs: true, useEncKey: true };
@@ -21,13 +19,12 @@ export default class KeyAuth {
       } on api version: ${this._options.apiVer || 1.2}`,
     );
   }
-  private _details: KeyAuthDetails;
-  private _options: KeyAuthOptions;
+  private _details: Api.Details;
+  private _options: Api.Options;
   private baseApiVer = '1.2';
   private _encKey: string;
   private _sessionId: string;
   private _initialized: boolean = false;
-  public log = Log;
   private _error(
     message: string | string[],
     param: string,
@@ -39,7 +36,7 @@ export default class KeyAuth {
       process.exit(0);
     }
   }
-  private _checkDetails(details: KeyAuthDetails) {
+  private _checkDetails(details: Api.Details) {
     const detailsErrors: string[] = [];
     if (!isNotEmpty(details.name)) {
       detailsErrors.push('❌ Name can not be empty');
@@ -143,19 +140,5 @@ export default class KeyAuth {
     this._initialized = true;
 
     return { success: true, message: parsed.message };
-  }
-}
-class Log {
-  static error(message: string, param?: string) {
-    logger.error({ message, optionalParams: param });
-  }
-  static warn(message: string, param?: string) {
-    logger.warn({ message, optionalParams: param });
-  }
-  static info(message: string, param?: string) {
-    logger.info({ message, optionalParams: param });
-  }
-  static debug(message: string, param?: string) {
-    logger.debug({ message, optionalParams: param });
   }
 }

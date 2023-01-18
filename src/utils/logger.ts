@@ -1,6 +1,4 @@
 import winston, { format } from 'winston';
-import { length } from 'class-validator';
-const { combine, timestamp, label, prettyPrint } = format;
 import {
   yellow,
   yellowBright,
@@ -102,6 +100,8 @@ function consoleFormat() {
             ? message.stack
             : typeof message === 'string'
             ? message
+            : typeof message === 'object'
+            ? JSON.stringify(message)
             : message.length === 1
             ? message
             : '\n' + message.join(',\n');

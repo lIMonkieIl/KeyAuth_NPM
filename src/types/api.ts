@@ -1,10 +1,10 @@
-export type KeyAuthDetails = {
+export type Details = {
   name: string;
   ownerId: string;
   secret: string;
   version: string;
 };
-export type KeyAuthOptions = {
+export type Options = {
   apiVer?: string;
   useEncKey?: boolean;
   logs?: boolean;
