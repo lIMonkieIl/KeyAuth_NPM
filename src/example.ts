@@ -1,11 +1,18 @@
-import KeyAuth from './keyauth';
+import KeyAuth, { KeyAuthDetails, KeyAuthOptions } from './index';
 
-const keyauthApp = new KeyAuth({
+const keyAuthDetails: KeyAuthDetails = {
   name: '',
   ownerId: '',
   secret: '',
   version: '',
-});
+};
+
+const keyAuthOptions: KeyAuthOptions = {
+  apiVer: '',
+  useEncKey: true,
+};
+
+const keyauthApp = new KeyAuth(keyAuthDetails, keyAuthOptions);
 export default function main() {
   console.log('Started');
 }

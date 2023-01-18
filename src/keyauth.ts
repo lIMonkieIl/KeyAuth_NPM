@@ -4,7 +4,7 @@ import { createHash, createCipheriv, createDecipheriv } from 'crypto';
 import { execSync } from 'child_process';
 import axios from 'axios';
 import os from 'os';
-import { isString, isNotEmpty, length, isNumberString } from 'class-validator';
+import { isNotEmpty, length, isNumberString } from 'class-validator';
 import { logger } from './logger';
 export default class KeyAuth {
   public constructor(details: KeyAuthDetails, options?: KeyAuthOptions) {
