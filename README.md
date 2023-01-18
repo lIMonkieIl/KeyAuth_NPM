@@ -2,13 +2,22 @@
 
 
 ```typescript
-import KeyAuth from './keyauth';
-const keyauthApp = new KeyAuth({
-  name: '',
-  ownerId: '',
-  secret: '',
-  version: '',
-});
+
+import KeyAuth, { KeyAuthDetails, KeyAuthOptions } from 'keyauth';
+
+const keyAuthDetails: KeyAuthDetails = {
+    name: '',
+    ownerId: '',
+    secret: '',
+    version: ''
+}
+
+const keyAuthOptions: KeyAuthOptions = {
+    apiVersion: '',
+    useEnvKey: true
+}
+
+const keyauthApp = new KeyAuth(KeyAuthDetails, KeyAuthOptions);
 
 ```
 
