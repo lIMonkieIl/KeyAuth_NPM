@@ -8,15 +8,26 @@ import { isNotEmpty, length, isNumberString } from 'class-validator';
 import { logger } from './logger';
 export default class KeyAuth {
   public constructor(details: KeyAuthDetails, options?: KeyAuthOptions) {
+    this._options = options
+      ? options
+      : { apiVer: '1.2', logs: true, useEncKey: true };
     this._checkDetails(details);
     this._details = details;
-    this._options = options || { apiVer: '1.2', useEncKey: true };
+
+    this.internalLog(
+      'debug',
+      `KeyAuth npn package successfully initialized, for app: ${
+        this._details.name
+      } on api version: ${this._options.apiVer || 1.2}`,
+    );
   }
   private _details: KeyAuthDetails;
   private _options: KeyAuthOptions;
-  private _enckey: string;
+  private baseApiVer = '1.2';
+  private _encKey: string;
   private _sessionId: string;
   private _initialized: boolean = false;
+  public log = Log;
   private _error(
     message: string | string[],
     param: string,
@@ -24,7 +35,7 @@ export default class KeyAuth {
   ) {
     logger.error({ message, optionalParams: param });
     if (exit) {
-      logger.error('process.exit(0); was called because of an error!');
+      logger.error('process.exit(0); was called because of an error!', 'Exit');
       process.exit(0);
     }
   }
@@ -51,20 +62,32 @@ export default class KeyAuth {
     if (!isNumberString(details.version)) {
       detailsErrors.push('❌ Version must be of type NumberString');
     }
+    if (this._options.apiVer === '1.0') {
+      detailsErrors.push(
+        '❌ This api version is not supported by this package!',
+      );
+    }
     return detailsErrors.length === 0
       ? null
       : this._error(detailsErrors, 'ImportError', true);
   }
   private async _make_request(data: any) {
+    let url = `https://keyauth.win/api/${
+      this._options.apiVer || this.baseApiVer
+    }/`;
+    console.log(url);
     return new Promise(async resolve => {
       const request = await axios({
         method: 'POST',
-        url: `https://keyauth.win/api/${this._options.apiVer}/`,
+        url: url,
         data: new URLSearchParams(data).toString(),
-      }).catch(err => {
-        console.log(err);
-      });
-
+      })
+        .then(data => {
+          return data;
+        })
+        .catch(err => {
+          console.log(err);
+        });
       if (request && request.data) {
         resolve(request.data);
       } else {
@@ -72,132 +95,67 @@ export default class KeyAuth {
       }
     });
   }
-  public initialize = () =>
-    new Promise(async resolve => {
-      this._enckey = createHash('sha256')
-        .update(uuidv4().substring(0, 8))
-        .digest('hex');
-      const init_iv = createHash('sha256')
-        .update(uuidv4().substring(0, 8))
-        .digest('hex');
-
-      const post_data = this._options.useEncKey
-        ? {
-            type: Buffer.from('init').toString('hex'),
-            ver: Encryption.encrypt(
-              this._details.version,
-              this._details.secret,
-              init_iv,
-            ),
-            enckey: Encryption.encrypt(
-              this._enckey,
-              this._details.secret,
-              init_iv,
-            ),
-            name: Buffer.from(this._details.name).toString('hex'),
-            ownerid: Buffer.from(this._details.ownerId).toString('hex'),
-            init_iv: init_iv,
-          }
-        : {
-            type: Buffer.from('init').toString('hex'),
-            ver: Encryption.encrypt(
-              this._details.version,
-              this._details.secret,
-              init_iv,
-            ),
-            name: Buffer.from(this._details.name).toString('hex'),
-            ownerid: Buffer.from(this._details.ownerId).toString('hex'),
-            init_iv: init_iv,
-          };
-
-      const response = await this._make_request(post_data);
-      const decrypted = Encryption.decrypt(
-        response,
-        this._details.secret,
-        init_iv,
-      );
-
-      const parsed = JSON.parse(decrypted);
-
-      if (!parsed.success || parsed.success == false) {
-        return resolve(false);
+  private internalLog(
+    level: 'error' | 'debug' | 'warn' | 'info',
+    message: string,
+  ) {
+    if (this._options.logs) {
+      logger.log(level, { message, optionalParams: 'Logs' });
+    }
+  }
+  public async initialize(): Promise<{ success: boolean; message: string }> {
+    this._encKey = createHash('sha256')
+      .update(uuidv4().substring(0, 8))
+      .digest('hex');
+    const post_data = {
+      type: 'init',
+      ver: this._details.version,
+      name: this._details.name,
+      ownerid: this._details.ownerId,
+      enckey: this._encKey,
+    };
+    const response = await this._make_request(post_data);
+    const parsed = JSON.parse(JSON.stringify(response));
+    if (!parsed.success || parsed.success == false) {
+      let message;
+      if (typeof parsed === 'string') {
+        message = parsed;
+      } else {
+        message = parsed.message;
       }
-
-      this._sessionId = parsed.sessionid;
-      this._initialized = true;
-
-      resolve(parsed);
-    });
-}
-class Encryption {
-  static encrypt(message: any, enc_key: any, iv: any) {
-    try {
-      const _key = createHash('sha256')
-        .update(enc_key)
-        .digest('hex')
-        .substring(0, 32);
-
-      const _iv = createHash('sha256')
-        .update(iv)
-        .digest('hex')
-        .substring(0, 16);
-
-      return this.encrypt_string(message, _key, _iv);
-    } catch (err) {
-      console.log(err);
-      console.log(
-        'Invalid Application Information. Long text is secret short text is ownerid. Name is supposed to be app name not username',
-      );
-      process.exit(1);
+      switch (message) {
+        case 'KeyAuth_Invalid':
+          this._error('Application not found', 'InitError', true);
+          break;
+        case "This program hash does not match, make sure you're using latest version":
+          this._error(
+            'Please disable program hash you can do that by visiting this link: https://keyauth.win/app/?page=app-settings',
+            'InitError',
+            true,
+          );
+          break;
+        default:
+          return { success: false, message: parsed.message || parsed };
+      }
     }
-  }
 
-  static encrypt_string(plain_text: any, key: any, iv: any) {
-    const cipher = createCipheriv('aes-256-cbc', key, iv);
-    let crypted = cipher.update(plain_text, 'utf-8', 'hex');
-    crypted += cipher.final('hex');
-    return crypted;
-  }
+    this._sessionId = parsed.sessionid;
+    this._initialized = true;
 
-  static decrypt(message: any, key: any, iv: any) {
-    try {
-      const _key = createHash('sha256')
-        .update(key)
-        .digest('hex')
-        .substring(0, 32);
-
-      const _iv = createHash('sha256')
-        .update(iv)
-        .digest('hex')
-        .substring(0, 16);
-
-      return this.decrypt_string(message, _key, _iv);
-    } catch (err) {
-      console.log(err);
-
-      console.log(
-        'Invalid Application Information. Long text is secret short text is ownerid. Name is supposed to be app name not username',
-      );
-      process.exit(1);
-    }
-  }
-
-  static decrypt_string(cipher_text: any, key: any, iv: any) {
-    const decipher = createDecipheriv('aes-256-cbc', key, iv);
-    let decrypted = decipher.update(cipher_text, 'hex', 'utf-8');
-    decrypted += decipher.final('utf-8');
-    return decrypted;
+    return { success: true, message: parsed.message };
   }
 }
-class Misc {
-  static get_hwid() {
-    if (os.platform() != 'win32') return false;
-
-    const cmd = execSync(
-      'wmic useraccount where name="%username%" get sid',
-    ).toString('utf-8');
-
-    const system_id = cmd.split('\n')[1].trim();
-    return system_id;
+class Log {
+  static error(message: string, param?: string) {
+    logger.error({ message, optionalParams: param });
+  }
+  static warn(message: string, param?: string) {
+    logger.warn({ message, optionalParams: param });
+  }
+  static info(message: string, param?: string) {
+    logger.info({ message, optionalParams: param });
+  }
+  static debug(message: string, param?: string) {
+    logger.debug({ message, optionalParams: param });
   }
 }

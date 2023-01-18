@@ -8,12 +8,18 @@ const keyAuthDetails: KeyAuthDetails = {
 };
 
 const keyAuthOptions: KeyAuthOptions = {
-  apiVer: '',
+  apiVer: '1.2',
+  logs: true,
   useEncKey: true,
 };
 
-const keyauthApp = new KeyAuth(keyAuthDetails, keyAuthOptions);
-export default function main() {
-  console.log('Started');
+const keyAuthApp = new KeyAuth(keyAuthDetails, keyAuthOptions);
+export default async function main() {
+  const { success, message } = await keyAuthApp.initialize();
+  if (!success) {
+    console.log(message);
+    process.exit(0);
+  }
+  console.log(message);
 }
 main();
