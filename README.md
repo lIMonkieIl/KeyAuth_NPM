@@ -6,18 +6,18 @@
 import KeyAuth, { KeyAuthDetails, KeyAuthOptions } from 'keyauth';
 
 const keyAuthDetails: KeyAuthDetails = {
-    name: '',
-    ownerId: '',
-    secret: '',
-    version: ''
-}
+  name: '',
+  ownerId: '',
+  secret: '',
+  version: '',
+};
 
 const keyAuthOptions: KeyAuthOptions = {
-    apiVersion: '',
-    useEnvKey: true
-}
+  apiVer: '',
+  useEncKey: true,
+};
 
-const keyauthApp = new KeyAuth(KeyAuthDetails, KeyAuthOptions);
+const keyauthApp = new KeyAuth(keyAuthDetails, keyAuthOptions);
 
 ```
 
