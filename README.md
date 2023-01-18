@@ -1,6 +1,17 @@
 ### KeyAuth NPM package
 
 
+```typescript
+import KeyAuth from './keyauth';
+const keyauthApp = new KeyAuth({
+  name: '',
+  ownerId: '',
+  secret: '',
+  version: '',
+});
+
+```
+
 ## Copyright License
 
 KeyAuth is licensed under **Elastic License 2.0**
