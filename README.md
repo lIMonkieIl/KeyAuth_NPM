@@ -4,7 +4,7 @@ This project is not finished in any way and will be coming soon it will include 
 # Some bonus Features that will be added
 • Check is strong password validation function
 ```typescript
- if (!KeyAuth.isStrongPw('PasswordToCheck', {
+ if (!KeyAuth.IsStrongPw('PasswordToCheck', {
       minLength: 5,
       minLowercase: 2,
       minNumbers: 2,

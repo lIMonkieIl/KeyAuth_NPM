@@ -1,4 +1,3 @@
-// import KeyAuth, { KeyAuthDetails, KeyAuthOptions } from './index';
 import KeyAuth, { Api, Seller } from './index';
 const sellerDetails: Seller.Details = {
   sellerKey: '',
