@@ -1,4 +1,20 @@
 ## COMING SOON
+This project is not finished in any way and will be coming soon it will include both the normal API and the SellerApi (will require a seller subscription)
+
+# Some bonus Features that will be added
+• Check is strong password validation function
+```typescript
+ if (!KeyAuth.isStrongPw('PasswordToCheck', {
+      minLength: 5,
+      minLowercase: 2,
+      minNumbers: 2,
+      minSymbols: 2,
+      minUppercase: 2,
+    })
+  ) {
+    console.log('Password validation failed');
+  }
+```
 
 ## KeyAuth NPM package
 
