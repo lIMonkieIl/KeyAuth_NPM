@@ -11,10 +11,10 @@ const keyAuthDetails: KeyAuthDetails = {
   secret: '',
   version: '',
 };
-
+// (OPTIONAL)
 const keyAuthOptions: KeyAuthOptions = {
-  apiVer: '',
-  useEncKey: true,
+  apiVer: '', // APIVer will be set to the latest by default,
+  useEncKey: true, //userEncKey will be set to True bt default
 };
 
 const keyauthApp = new KeyAuth(keyAuthDetails, keyAuthOptions);
