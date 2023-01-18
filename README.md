@@ -1,26 +1,86 @@
 ## COMING SOON
 
-### KeyAuth NPM package
+## KeyAuth NPM package
 
-
+### API 
 ```typescript
 
-import KeyAuth, { KeyAuthDetails, KeyAuthOptions } from 'keyauth';
+import KeyAuth, { Api } from 'keyauth';
 
-const keyAuthDetails: KeyAuthDetails = {
+const apiDetails: Api.Details = {
   name: '',
   ownerId: '',
   secret: '',
   version: '',
 };
 // (OPTIONAL)
-const keyAuthOptions: KeyAuthOptions = {
-  apiVer: '', // Default (latest version),
-  useEncKey: true, // Default (true)
+const apiOptions: Api.Options = {
+  apiVer: '1.2', // Default (latest version)
+  logs: true, // show/hide logs default(true)
+  useEncKey: true,  // Default (true)
 };
 
-const keyauthApp = new KeyAuth(keyAuthDetails, keyAuthOptions);
+const keyAuthApi = new KeyAuth.Api(apiDetails, apiOptions);
+export default async function main() {
+    const { success } = await keyAuthApi.initialize();
+  if (success) {
+    // Continue work
+  } else {
+    // Stop work
+  }
 
+}
+main();
+
+```
+### Seller
+```typescript
+
+import KeyAuth, { Seller } from 'keyauth';
+
+const sellerDetails: Seller.Details = {
+  sellerKey: '',
+};
+// (OPTIONAL) 
+const sellerOptions: Seller.Options = {
+  logs: true,  // show/hide logs default(true)
+};
+
+const keyAuthApi = new KeyAuth.Api(apiDetails, apiOptions);
+export default async function main() {
+    const { success } =  await keyAuthSeller.initialize();
+  if (success) {
+    // Continue work
+  } else {
+    // Stop work
+  }
+
+}
+main();
+
+```
+## Logger
+```typescript
+import KeyAuth from 'keyauth';
+export default async function main() {
+  KeyAuth.log.info('info message', 'Main')
+  /*
+  output: [18/01/2023 - 15:12:18:722] [KeyAuthNPM/Main] [INFO]: info message
+  */
+  KeyAuth.log.warn('warn message', 'Main')
+    /*
+  output: [18/01/2023 - 15:12:18:722] [KeyAuthNPM/Main] [WARN]: warn message
+  */
+  KeyAuth.log.debug('debug message', 'Main')
+    /*
+  output: [18/01/2023 - 15:12:18:722] [KeyAuthNPM/Main] [DEBUG]: debug message
+  */
+  KeyAuth.log.error('error message', 'Main')
+    /*
+  output: [18/01/2023 - 15:12:18:722] [KeyAuthNPM/Main] [ERROR]: error message
+  */
+}
+main()
 ```
 
 ## Copyright License
