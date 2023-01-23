@@ -1,4 +1,4 @@
-import winston, { format } from 'winston';
+import { format } from 'winston';
 import {
   yellow,
   yellowBright,
@@ -8,19 +8,7 @@ import {
   red,
   whiteBright,
 } from 'chalk';
-function capitalizeFirstLetter(string: string) {
-  if (!string) return string;
-  return string.charAt(0).toUpperCase() + string.slice(1);
-}
-const formatMeta = (meta: any) => {
-  // You can format the splat yourself
-  const splat = meta[Symbol.for('splat')];
-  if (splat && splat.length) {
-    return splat.length === 1 ? splat[0] : splat;
-  }
-  return '';
-};
-const enumerateErrorFormat = format(info => {
+export const enumerateErrorFormat: any = format(info => {
   const opts = formatMeta(info);
   if (info.message instanceof Error) {
     info.message = Object.assign(
@@ -59,7 +47,19 @@ const enumerateErrorFormat = format(info => {
   }
   return info;
 });
-function consoleFormat() {
+
+export function capitalizeFirstLetter(string: string) {
+  if (!string) return string;
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+export function formatMeta(meta: any) {
+  const splat = meta[Symbol.for('splat')];
+  if (splat && splat.length) {
+    return splat.length === 1 ? splat[0] : splat;
+  }
+  return '';
+}
+export function consoleFormat(): any {
   return format.printf(
     ({ level, message, application, webhook, optionalParams }) => {
       let date = new Date();
@@ -100,8 +100,6 @@ function consoleFormat() {
             ? message.stack
             : typeof message === 'string'
             ? message
-            : typeof message === 'object'
-            ? JSON.stringify(message)
             : message.length === 1
             ? message
             : '\n' + message.join(',\n');
@@ -116,10 +114,17 @@ function consoleFormat() {
     },
   );
 }
-
-export const logger = winston.createLogger({
-  level: 'debug',
-  defaultMeta: { application: 'KeyAuthNPM' },
-  format: format.combine(format.splat(), enumerateErrorFormat()),
-  transports: [new winston.transports.Console({ format: consoleFormat() })],
-});
+export const rotationFormat: any = format.printf(
+  ({ level, message, application, optionalParams }) => {
+    let date = new Date();
+    return JSON.stringify({
+      date: date.toLocaleDateString(),
+      time: `${date.toLocaleTimeString()}:${date.getMilliseconds()}`,
+      application: optionalParams
+        ? `${application}/${optionalParams}`
+        : application,
+      level: level,
+      message: message,
+    });
+  },
+);

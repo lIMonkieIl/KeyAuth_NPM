@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "description": "",
   "type": "commonjs",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.js",
+  "main": "./dist/example.js",
+  "types": "./dist/example.d.js",
   "scripts": {
     "build": "npx tsc",
     "example": "concurrently \"npx tsc --watch\" \"nodemon -q dist/example.js --color\""
@@ -18,9 +18,14 @@
     "chalk": "4",
     "class-validator": "^0.14.0",
     "concurrently": "^7.6.0",
+    "discord-webhook-node": "^1.1.8",
+    "form-data": "^4.0.0",
+    "node-fetch": "^3.3.0",
     "nodemon": "^2.0.20",
     "uuid": "^9.0.0",
-    "winston": "^3.8.2"
+    "winston": "^3.8.2",
+    "winston-daily-rotate-file": "^4.7.1",
+    "winston-transport": "^4.5.0"
   },
   "devDependencies": {
     "@types/uuid": "^9.0.0",
